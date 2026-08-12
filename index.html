@@ -84,7 +84,7 @@
       "Composable drawing effects",
       "Custom color selection",
       "PNG image export",
-      "Animated GIF performance rendering",
+      "Animated GIF recording rendering",
       "Offline-capable progressive web app"
     ]
   }
@@ -112,41 +112,77 @@
 
         <div class="effects-control popover-wrap">
           <button id="effectsBtn" class="utility menu-button" aria-haspopup="true" aria-expanded="false">
-            Effects <span id="effectsCount" class="count-badge">1</span>
+            Effects <span id="effectsCount" class="count-badge">0</span>
           </button>
           <div id="effectsMenu" class="popover effects-menu" hidden>
-            <div class="popover-heading">
-              <strong>Effects</strong>
-              <div class="bulk-actions">
-                <button id="selectAllEffectsBtn" type="button" class="text-button">Select all</button>
-                <button id="clearAllEffectsBtn" type="button" class="text-button">Unselect all</button>
+            <div class="effects-tabs" role="tablist" aria-label="Paint effects menu">
+              <button id="effectsTabBtn" class="effects-tab active" type="button" role="tab" aria-selected="true" aria-controls="effectsTabPanel">Effects</button>
+              <button id="stackTabBtn" class="effects-tab" type="button" role="tab" aria-selected="false" aria-controls="stackTabPanel">Stack</button>
+            </div>
+
+            <div id="effectsTabPanel" class="effects-tab-panel" role="tabpanel" aria-labelledby="effectsTabBtn">
+              <div class="popover-heading effects-panel-heading">
+                <strong>Paint Effects</strong>
+                <div class="bulk-actions">
+                  <button id="selectAllEffectsBtn" type="button" class="text-button">Select all</button>
+                  <button id="clearAllEffectsBtn" type="button" class="text-button">Unselect all</button>
+                </div>
+              </div>
+
+              <div class="effect-groups" aria-label="Effects">
+                <section class="effect-group" aria-labelledby="generateEffectsHeading">
+                  <h3 id="generateEffectsHeading">Generate</h3>
+                  <div class="behaviors">
+                    <button class="behavior" data-behavior="bloom" aria-pressed="false">Bloom</button>
+                    <button class="behavior" data-behavior="drift" aria-pressed="false">Drift</button>
+                    <button class="behavior" data-behavior="scatter" aria-pressed="false">Scatter</button>
+                    <button class="behavior" data-behavior="spray" aria-pressed="false">Spray</button>
+                  </div>
+                </section>
+
+                <section class="effect-group" aria-labelledby="interactEffectsHeading">
+                  <h3 id="interactEffectsHeading">Interact</h3>
+                  <div class="behaviors">
+                    <button class="behavior" data-behavior="bleed" aria-pressed="false">Bleed</button>
+                    <button class="behavior" data-behavior="connect" aria-pressed="false">Connect</button>
+                    <button class="behavior" data-behavior="echo" aria-pressed="false">Echo</button>
+                    <button class="behavior" data-behavior="orbit" aria-pressed="false">Orbit</button>
+                  </div>
+                </section>
+
+                <section class="effect-group" aria-labelledby="transformEffectsHeading">
+                  <h3 id="transformEffectsHeading">Transform</h3>
+                  <div class="behaviors">
+                    <button class="behavior" data-behavior="flow" aria-pressed="false">Flow</button>
+                    <button class="behavior" data-behavior="fractal" aria-pressed="false">Fractal</button>
+                    <button class="behavior" data-behavior="mirror" aria-pressed="false">Mirror</button>
+                    <button class="behavior" data-behavior="radial" aria-pressed="false">Radial</button>
+                  </div>
+                </section>
               </div>
             </div>
-            <div class="behaviors" aria-label="Effects">
-              <button class="behavior" data-behavior="cycle" aria-pressed="false">Cycle</button>
-              <button class="behavior" data-behavior="connect" aria-pressed="false">Connect</button>
-              <button class="behavior" data-behavior="echo" aria-pressed="false">Echo</button>
-              <button class="behavior" data-behavior="scatter" aria-pressed="false">Scatter</button>
-              <button class="behavior" data-behavior="flow" aria-pressed="false">Flow</button>
-              <button class="behavior" data-behavior="bloom" aria-pressed="false">Bloom</button>
-              <button class="behavior" data-behavior="spray" aria-pressed="false">Spray</button>
-              <button class="behavior" data-behavior="offset" aria-pressed="false">Offset</button>
-              <button class="behavior" data-behavior="mirror" aria-pressed="false">Mirror</button>
-              <button class="behavior" data-behavior="radial" aria-pressed="false">Radial</button>
-              <button class="behavior" data-behavior="drift" aria-pressed="false">Drift</button>
-              <button class="behavior" data-behavior="orbit" aria-pressed="false">Orbit</button>
-              <button class="behavior" data-behavior="fractal" aria-pressed="false">Fractal</button>
-              <button class="behavior" data-behavior="bleed" aria-pressed="false">Bleed</button>
+
+            <div id="stackTabPanel" class="effects-tab-panel" role="tabpanel" aria-labelledby="stackTabBtn" hidden>
+              <div class="stack-heading">
+                <strong>Effect Order</strong>
+                <div class="stack-heading-actions">
+                  <span>Runs top → bottom</span>
+                  <button id="clearStackBtn" type="button" class="text-button stack-clear-button">Clear stack</button>
+                </div>
+              </div>
+              <div id="effectStackPreview" class="effect-stack-preview" aria-live="polite"></div>
+              <p class="stack-note">Drag by the handle or use the arrows to reorder. Use × to disable and + to re-enable.</p>
             </div>
           </div>
         </div>
 
-        <div class="swatches" aria-label="Color">
+        <div class="swatches" aria-label="Ink">
           <button class="swatch active" data-color="#e53935" aria-label="Red" aria-pressed="true" style="--swatch:#e53935"></button>
           <button class="swatch" data-color="#f6c90e" aria-label="Yellow" aria-pressed="false" style="--swatch:#f6c90e"></button>
           <button class="swatch" data-color="#1e66f5" aria-label="Blue" aria-pressed="false" style="--swatch:#1e66f5"></button>
           <button class="swatch" data-color="#111111" aria-label="Black" aria-pressed="false" style="--swatch:#111111"></button>
           <button class="swatch" data-color="#ffffff" aria-label="White" aria-pressed="false" style="--swatch:#ffffff"></button>
+          <button id="cycleInkBtn" class="swatch cycle-swatch" data-ink="cycle" aria-label="Cycle ink" aria-pressed="false" title="Cycle"></button>
           <div class="custom-color-wrap popover-wrap">
             <button id="customColorBtn" class="swatch custom-swatch" aria-label="Custom color" aria-pressed="false" style="--swatch:#7b61ff"><span>+</span></button>
             <div id="colorMenu" class="popover color-menu" hidden>
@@ -178,8 +214,8 @@
           <button id="undoBtn" class="utility" disabled aria-label="Undo last drawing action">Undo</button>
           <button id="fullscreenBtn" class="utility">Full screen</button>
           <button id="canvasSizeBtn" class="utility">Canvas size</button>
-          <button id="saveBtn" class="utility">Save image</button>
-          <button id="gifRenderBtn" class="utility">Render GIF</button>
+          <button id="saveBtn" class="utility" hidden aria-hidden="true" tabindex="-1">Save image</button>
+          <button id="gifRenderBtn" class="utility" hidden aria-hidden="true" tabindex="-1">Render GIF</button>
           <button id="clearBtn" class="utility">Clear</button>
           <button id="finishBtn" class="utility primary">Finish</button>
         </div>
@@ -238,7 +274,7 @@
     <div class="gif-card">
       <div class="gif-preview-wrap">
         <span class="gif-preview-label" aria-hidden="true">GIF Preview</span>
-        <img id="gifPreview" alt="Preview of rendered Canvas performance" hidden />
+        <img id="gifPreview" alt="Preview of rendered Canvas recording" hidden />
         <div id="gifRenderStatus" class="gif-render-status" role="status" aria-live="polite">
           <span class="gif-render-spinner" aria-hidden="true"></span>
           <span>Preparing GIF…</span>
@@ -257,10 +293,10 @@
     <form method="dialog" class="finish-card">
       <div class="preview-wrap"><img id="previewImage" alt="Preview of your drawing" /></div>
       <div class="finish-actions">
-        <button id="downloadBtn" type="button" class="utility primary">Download image</button>
-        <button id="finishGifBtn" type="button" class="utility">Render GIF</button>
+        <button id="downloadBtn" type="button" class="utility primary">Download image (PNG)</button>
+        <button id="finishGifBtn" type="button" class="utility">Render recording (GIF)</button>
         <button id="shareBtn" type="button" class="utility">Share</button>
-        <button id="downloadSessionBtn" type="button" class="utility">Download session</button>
+        <button id="downloadSessionBtn" type="button" class="utility">Download recording (JSON)</button>
         <button value="close" class="utility">Keep drawing</button>
         <button id="newBtn" type="button" class="utility danger">Start again</button>
       </div>

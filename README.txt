@@ -9,7 +9,7 @@ BASELINE
 - Small / medium / large brushes
 - Local persistence
 - One-tap Save Image button during drawing
-- Finish dialog with PNG and session JSON export
+- Finish dialog with PNG and recording JSON export
 - Responsive, preset, and custom canvas dimensions
 
 COMPOSABLE BEHAVIORS
@@ -45,7 +45,7 @@ NOTES
 - Flow, Offset, Radial, and Mirror are composable spatial transformations.
 - Bloom and Spray can also be transformed by Flow/Offset/Radial/Mirror because they emit ordinary marks through the same pipeline.
 - Orbit is intentionally multi-touch: it has no effect with a single active touch.
-- All behavior toggles and touch events are recorded in the exported session JSON.
+- All behavior toggles and touch events are recorded in the exported recording JSON.
 
 
 BRANDING + PWA — v1.7
@@ -58,15 +58,15 @@ BRANDING + PWA — v1.7
 - PWA display allows any orientation and respects device safe areas
 
 
-PERFORMANCE GIF — v1.9.1
-- Canvas continuously records a lightweight performance log: timestamped touch/pointer events plus color, brush-size, effect, clear, and canvas-setting changes.
-- Render GIF reconstructs the current performance after the fact; there is no live GIF recording mode.
+RECORDING GIF — v1.9.1
+- Canvas continuously records a lightweight recording log: timestamped touch/pointer events plus color, brush-size, effect, clear, and canvas-setting changes.
+- Render GIF reconstructs the current recording after the fact; there is no live GIF recording mode.
 - Stochastic effects use a session seed, so Scatter, Spray, Bloom, and Bleed make the same random choices during replay.
-- Flow and Echo use the recorded performance clock so their timing is replayable.
-- Rendering is entirely client-side; no artwork or performance data is uploaded.
-- GIF output preserves the performance timing, loops continuously, and is scaled to a maximum dimension of 480 px.
-- Long sessions are automatically sampled to a practical maximum frame count rather than imposing a performance-time limit.
-- Start again begins a new performance/session log. The session JSON download contains the replay data and random seed.
+- Flow and Echo use the recorded clock so their timing is replayable.
+- Rendering is entirely client-side; no artwork or recording data is uploaded.
+- GIF output preserves the recording timing, loops continuously, and is scaled to a maximum dimension of 480 px.
+- Long recordings are automatically sampled to a practical maximum frame count rather than imposing a recording-time limit.
+- Start again begins a new recording. The recording JSON download contains the replay data and random seed.
 
 
 GIF CLEAR BOUNDARY (v1.9.6)
@@ -97,12 +97,12 @@ BRANDING + SEO — v1.9.17
 - Added favicon-48.png reference alongside the existing favicon, Apple touch icon, and Android/PWA icons.
 - Added robots.txt and sitemap.xml.
 - Social preview image expected at assets/icons/canvas-social.png (1200 × 627).
-- Downloaded PNG, GIF, and session JSON filenames now use the canvas- prefix.
+- Downloaded PNG, GIF, and recording JSON filenames now use the canvas- prefix.
 
 
 FINISH ACTIONS — v1.9.18
 ------------------------
-- Finish dialog now includes Render GIF, using the existing performance GIF renderer unchanged.
+- Finish dialog now includes Render recording as GIF, using the existing recording GIF renderer unchanged.
 - Finish dialog now includes Share, which uses the native Web Share API to share the finished PNG where supported.
 - Finish > Download image now performs a direct PNG download on mobile instead of invoking the share sheet.
 
@@ -137,3 +137,29 @@ BRUSH STATE PERSISTENCE — v1.9.35
 - Selected ink/color, brush size, and enabled effects are saved locally.
 - Refreshing/reopening restores the previous brush setup alongside the saved canvas.
 - Clearing or starting a new canvas does not reset the saved brush setup.
+
+CANVAS v2 — PHASE 1 ENGINE (Checkpoint 6)
+-----------------------------------------
+- Cycle is now an ink internally rather than a paint effect.
+- Active paint effects are represented canonically as an ordered effectStack.
+- All existing effects execute through a centralized ordered registry/pipeline.
+- Immediate and deferred/generated marks resume through the effects that follow their source effect, so effect order can change the result.
+- Echo queues its resumeAtEffectIndex and resumes downstream when each delayed copy fires; it does not restart the stack.
+- Live drawing and GIF replay use the same effect pipeline, particle updater, Echo queue processor, safety governor, and deterministic session clock/randomness.
+- Legacy Boolean behavior state is retained only at persistence/session compatibility boundaries so older saved brush state and recordings remain readable.
+
+INTENTIONAL LIVE-INK SETTLING BEHAVIOR
+--------------------------------------
+Some deferred/generated particle marks intentionally resolve their ink color when they are emitted/rendered rather than permanently freezing a color at the original gesture. In the current engine this applies to Scatter, Bloom, Drift, and Bleed. As a result, changing inks while those effects are still dispersing/settling changes the color of their remaining motion while already-painted marks keep their original color. This began as an emergent behavior and is now intentionally preserved. Do not normalize these particle marks to gesture-time color unless Canvas later introduces an explicit choice between gesture-time and render-time color semantics.
+
+CANVAS v2 — PHASE 2 ORDERED EFFECTS UI (Checkpoint 2.5)
+---------------------------------------------------------
+- Paint Effects are grouped alphabetically as Generate, Interact, and Transform; effects are alphabetical within each group.
+- Cycle is presented as an ink, not a paint effect.
+- The Stack tab exposes the real ordered pipeline while the Effects tab remains the default quick-toggle surface.
+- New effects append to the stack. Disabling an effect keeps its position; re-enabling restores it in place.
+- Stack rows support drag, up/down controls, and direct disable/re-enable controls.
+- Unselect all disables retained effects without forgetting order. Clear stack empties the stack and disables all effects.
+- Mobile Stack mode keeps tabs/header fixed and scrolls only the ordered row list so touch targets remain usable.
+- Offset is retired from the current UI/state but remains implemented in the engine for legacy session/GIF replay and possible future restoration.
+- Bulk UI actions operate only on currently exposed effects, so retired effects cannot silently return to a new live stack.
